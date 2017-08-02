@@ -14,18 +14,27 @@ public class BotLmao extends DefaultBWListener {
     
     int EnemyCount;
     
-    int AttackStartFrame;
     int WalkTimeCounter;
+    
     @Override
     public void onStart() {
 	game = mirror.getGame();
+	eus = new ArrayList<Unit>();
+	enus = new ArrayList<Unit>();
 	game.sendText("BotLmao has initialised");
     }
     
-	
+    
+    public void onUnitDiscover(Unit unit) {
+        if (unit.getPlayer() == game.self()) {
+            eus.add(unit);
+        }
+        else if (unit.getPlayer() == game.enemy()) {
+            enus.add(unit);
+        }
+    }
+    
     public void onFrame() {
-	enus = game.enemy().getUnits();
-	eus = game.self().getUnits();
 	
 	EnemyCount = EnemyCheck();
 	
@@ -52,7 +61,7 @@ public class BotLmao extends DefaultBWListener {
 	}
 	else if (game.mapFileName().equals("03_Zehnkampf.scx")) {
 	    game.drawTextScreen( 50, 90, ("Using Backtrackformation"));
-	    this.useLineFormation(); 
+	    this.useBacktrackFormation(); 
 	}
 	else {
 	    game.drawTextScreen( 50, 90, ("No specific Map formation. Defaulting to Lineformation"));
@@ -63,7 +72,7 @@ public class BotLmao extends DefaultBWListener {
     
     public void useLineFormation() {
 	for (int j = 0; j < EnemyCount + 1; j++) {
-	    if (EnemyCount > 0 ) {
+	    if (game.enemy().getUnits().size() > 0) {
 		for (int i = 0; i < eus.size(); i++) {
 		    if (eus.get(i).getLastCommandFrame() >= game.getFrameCount() || eus.get(i).isAttackFrame()) {
 		    }
@@ -97,82 +106,59 @@ public class BotLmao extends DefaultBWListener {
     }
     
     public void useBacktrackFormation() {
-	if (EnemyCount <= 0) {
+	if (game.enemy().getUnits().size() <= 0) {
 	    for (int i = 0; i < eus.size(); i++) {
 		if ((i % 2) == 0) {
-		    eus.get(i).move(new TilePosition(posPlayerUnits.get(i).getX() - 2, posPlayerUnits.get(i).getY() + 3).toPosition());
+		    eus.get(i).move(new TilePosition(posPlayerUnits.get(i).getX() - 2, posPlayerUnits.get(i).getY() + 10).toPosition());
 		}
 		else {
-		    eus.get(i).move(new TilePosition(posPlayerUnits.get(i).getX() + 2, posPlayerUnits.get(i).getY() + 3).toPosition());
+		    eus.get(i).move(new TilePosition(posPlayerUnits.get(i).getX() + 2, posPlayerUnits.get(i).getY() + 10).toPosition());
 		}
-			    
+			     
 	    }   
 	}
 	else { 
-	    if (AttackStartFrame == 0) {
-		AttackStartFrame = game.getFrameCount();
-	    }
 	    for (int j = 0; j < enus.size(); j++) {
 		    if (enus.get(j).getType() == enus.get(j).getType().Terran_Firebat) {
-
-			
 			    for (int i = 0; i < eus.size(); i++) {
-				if (AttackStartFrame <= (game.getFrameCount() - 25)) {
-				    eus.get(i).move((new TilePosition(this.posPlayerUnits.get(i).getX(), this.posPlayerUnits.get(i).getY() - 20)).toPosition());
-				    WalkTimeCounter++;
-				    if (WalkTimeCounter == 5) {
-					AttackStartFrame = 0;
-					WalkTimeCounter = 0;
+				game.drawTextScreen( 50, 120, ("Distance to Firebat: " + (enus.get(j).getY() - eus.get(i).getY())));
+				if (enus.get(j).getDistance(eus.get(i)) <= 110 && enus.get(j).getDistance(eus.get(i)) >= 70  && !enus.get(j).isAttacking()) {
+				    if ((i % 2) == 0) {
+					eus.get(i).move((new TilePosition(this.posPlayerUnits.get(i).getX() - 2, this.posPlayerUnits.get(i).getY() - 5)).toPosition());
 				    }
+				    else {
+					eus.get(i).move((new TilePosition(this.posPlayerUnits.get(i).getX() + 2, this.posPlayerUnits.get(i).getY() - 5)).toPosition());
+				    }
+				    
 				}
-				else if (eus.get(i).getLastCommandFrame() >= game.getFrameCount() || eus.get(i).isAttackFrame() && WalkTimeCounter < 1) {
+				else if (eus.get(i).getLastCommandFrame() >= game.getFrameCount() || eus.get(i).isAttackFrame()) {
 				}
-				else if (eus.get(i).getLastCommand().getUnitCommandType() == UnitCommandType.Attack_Unit && WalkTimeCounter < 1) {
+				else if (eus.get(i).getLastCommand().getUnitCommandType() == UnitCommandType.Attack_Unit) {
 				}
 				else {
-				    eus.get(i).attack(enus.get(j));
-				}
-				
-			    }
-			
-		    }
-		    else if (enus.get(j+1).getType() == enus.get(j+1).getType().Terran_Firebat) {
-
-			
-			    for (int i = 0; i < eus.size(); i++) {
-				if (AttackStartFrame <= (game.getFrameCount() - 25) || WalkTimeCounter < 5) {
-				    eus.get(i).move((new TilePosition(this.posPlayerUnits.get(i).getX(), this.posPlayerUnits.get(i).getY() - 20)).toPosition());
-				    WalkTimeCounter++;
-				    if (WalkTimeCounter == 5) {
-					AttackStartFrame = 0;
-					WalkTimeCounter = 0;
+				    if (enus.get(j).isVisible()) {
+					eus.get(i).attack(enus.get(j));
 				    }
 				}
-				else if (eus.get(i).getLastCommandFrame() >= game.getFrameCount() || eus.get(i).isAttackFrame() || WalkTimeCounter < 1) {
-				}
-				else if (eus.get(i).getLastCommand().getUnitCommandType() == UnitCommandType.Attack_Unit || WalkTimeCounter < 1) {
-				}
-				else {
-				    eus.get(i).attack(enus.get(j+1));
-				}
-				
 			    }
-			
 		    }
 		    else  {
 			for (int i = 0; i < eus.size(); i++) {
-			    if (eus.get(i).getLastCommandFrame() >= game.getFrameCount() || eus.get(i).isAttackFrame()) {
-			    }
-			    else if (eus.get(i).getLastCommand().getUnitCommandType() == UnitCommandType.Attack_Unit) {
+			    if (!enus.get(j).isVisible()) {
+				eus.get(i).move(new TilePosition(eus.get(i).getX(), eus.get(i).getY() + 10).toPosition());
 			    }
 			    else {
-				if (enus.get(j).isVisible()) {
+				if (eus.get(i).getLastCommandFrame() >= game.getFrameCount() || eus.get(i).isAttackFrame()) {
+				}
+				else if (eus.get(i).getLastCommand().getUnitCommandType() == UnitCommandType.Attack_Unit) {
+				}
+				else {
 				    eus.get(i).attack(enus.get(j));
 				}
 			    }
+			    
 			}
 		    }
-		
 	    }
 	 } 
     }
@@ -183,8 +169,7 @@ public class BotLmao extends DefaultBWListener {
 
 
     public int EnemyCheck() {
-	enus = game.enemy().getUnits();
-	game.drawTextScreen( 50, 50, ("Enemies (Visible) Units: " + enus.size()));
+	game.drawTextScreen( 50, 50, ("Enemies (Visible) Units: " + game.enemy().getUnits().size()));
 	if (enus.size() > 0) {
 	    return enus.size();
 	}
@@ -194,8 +179,7 @@ public class BotLmao extends DefaultBWListener {
     }
     
     public int PlayerCheck() {
-	eus = game.self().getUnits();
-	game.drawTextScreen( 50, 70, ("BotLmao's Units: " + eus.size()));
+	game.drawTextScreen( 50, 70, ("BotLmao's Units: " + game.self().getUnits().size()));
 	if (eus.size() > 0) {
 	    return eus.size();
 	}
@@ -237,18 +221,6 @@ public class BotLmao extends DefaultBWListener {
 	    
     }
     
-    public int getSide() {
-   	if (game.getStartLocations().get(0).getY() == 0) {
-   	    return 1;
-   	}
-   	return 1;
-       }
-    
-    
-    
-    
-    
-   
     
     
     //Unveränderbar
