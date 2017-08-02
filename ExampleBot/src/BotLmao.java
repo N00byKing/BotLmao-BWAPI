@@ -14,7 +14,8 @@ public class BotLmao extends DefaultBWListener {
 
     int EnemyCount;
     int WalkTimeCounter;
-
+    
+    
     @Override
     public void onStart() {
 	game = mirror.getGame();
@@ -116,9 +117,6 @@ public class BotLmao extends DefaultBWListener {
 
     public void useBacktrackFormation() {
 	try {
-	    
-	
-	
 	if (game.enemy().getUnits().size() <= 0) {
 	    for (int i = 0; i < eus.size(); i++) {
 		if ((i % 2) == 0) {
@@ -137,107 +135,54 @@ public class BotLmao extends DefaultBWListener {
 		    firebats.add(u);
 		}
 	    }
-	    
-	    for (Unit f : firebats) {
-		    for (int i = 0; i < eus.size(); i++) {
-					game.drawTextScreen( 50, 110 + 20*i, ("Distance to Firebat: " + (f.getY() - eus.get(i).getY())));
-					if (f.getDistance(eus.get(i)) <= 110 && f.getDistance(eus.get(i)) >= 68  && !f.isAttacking()) {
-					    if ((i % 2) == 0) {
-						eus.get(i).move((new TilePosition(this.posPlayerUnits.get(i).getX() - 3, this.posPlayerUnits.get(i).getY() - 10)).toPosition());
-					    }
-					    else {
-						eus.get(i).move((new TilePosition(this.posPlayerUnits.get(i).getX() + 3, this.posPlayerUnits.get(i).getY() - 10)).toPosition());
-					    }
-					    
-					}
-					else if (eus.get(i).getLastCommandFrame() >= game.getFrameCount() || eus.get(i).isAttackFrame()) {
-					}
-					else if (eus.get(i).getLastCommand().getUnitCommandType() == UnitCommandType.Attack_Unit) {
-					}
-					else {
-					    if (f.isVisible()) {
-						eus.get(i).attack(f);
-					    }
-					}
-				    }
-	    }
-	    
-	    // Kein Firebat mehr da.
-	    if (firebats.size() == 0 && enus.size() == 1) {
-		for (int j = 0; j < enus.size(); j++) {
-            		for (int i = 0; i < eus.size(); i++) {
-                    	    eus.get(i).move(new TilePosition(eus.get(i).getX(), eus.get(i).getY() - 10).toPosition());
-                    	    game.sendText("AyyAdadfwDAWD");
-                    	    if (!enus.get(j).isVisible()) {
-                    		game.sendText("Where are yuuu :3");
-                    		eus.get(i).move(new TilePosition(eus.get(i).getX(), eus.get(i).getY() + 10).toPosition());
-                    	    }
-                    	    else {
-                    		game.sendText("Imma getcha :3");
-                    		if (eus.get(i).getLastCommandFrame() >= game.getFrameCount() || eus.get(i).isAttackFrame()) {
-                    		    game.sendText("Ayy");
-                    		}
-                    		else if (eus.get(i).getLastCommand().getUnitCommandType() == UnitCommandType.Attack_Unit) {
-                    		    game.sendText("Ayy2");
-                    		}
-                    		else {
-                    		    eus.get(i).attack(game.enemy().getUnits().get(j));
-                    		}
-                    	    }
-                    	    
-                    	}
+	
+	    for (int j = 0; j < enus.size(); j++) {
+		if (!firebats.get(j).exists()) {
+		    firebats.remove(j);
 		}
+		    if (firebats.size() > 0) {
+			    for (int i = 0; i < eus.size(); i++) {
+				if (enus.get(j).getType() != UnitType.Terran_Firebat) {
+				    j = j+1;
+				}
+				game.drawTextScreen( 50, 110 + 20*i, ("Distance to Firebat: " + (enus.get(j).getY() - eus.get(i).getY())));
+				if (enus.get(j).getDistance(eus.get(i)) <= 110 && enus.get(j).getDistance(eus.get(i)) >= 68  && !enus.get(j).isAttacking()) {
+				    if ((i % 2) == 0) {
+					eus.get(i).move((new TilePosition(this.posPlayerUnits.get(i).getX() - 3, this.posPlayerUnits.get(i).getY() - 10)).toPosition());
+				    }
+				    else {
+					eus.get(i).move((new TilePosition(this.posPlayerUnits.get(i).getX() + 3, this.posPlayerUnits.get(i).getY() - 10)).toPosition());
+				    }
+				}
+				else if (eus.get(i).getLastCommandFrame() >= game.getFrameCount() || eus.get(i).isAttackFrame()) {
+				}
+				else if (eus.get(i).getLastCommand().getUnitCommandType() == UnitCommandType.Attack_Unit) {
+				}
+				else {
+				    if (enus.get(j).isVisible()) {
+					eus.get(i).attack(enus.get(j));
+				    }
+				}
+			    }
+		    }
+		    else {
+			for (int i = 0; i < eus.size(); i++) {
+			    if (!enus.get(j).isVisible()) {
+				eus.get(i).move(new TilePosition(eus.get(i).getX(), eus.get(i).getY() + 10).toPosition());
+			    }
+			    else {
+				if (eus.get(i).getLastCommandFrame() >= game.getFrameCount() || eus.get(i).isAttacking()) {
+				}
+				else if (eus.get(i).getLastCommand().getUnitCommandType() == UnitCommandType.Attack_Unit) {
+				}
+				else {
+				    eus.get(i).attack(game.enemy().getUnits().get(j));
+				}
+			    }
+			}
+		    }
 	    }
-	}
-//	    for (int j = 0; j < enus.size(); j++) {
-//		    if (enus.get(j).getType() == UnitType.Terran_Firebat) {
-//			    for (int i = 0; i < eus.size(); i++) {
-//				game.drawTextScreen( 50, 110 + 20*i, ("Distance to Firebat: " + (enus.get(j).getY() - eus.get(i).getY())));
-//				if (enus.get(j).getDistance(eus.get(i)) <= 110 && enus.get(j).getDistance(eus.get(i)) >= 68  && !enus.get(j).isAttacking()) {
-//				    if ((i % 2) == 0) {
-//					eus.get(i).move((new TilePosition(this.posPlayerUnits.get(i).getX() - 3, this.posPlayerUnits.get(i).getY() - 10)).toPosition());
-//				    }
-//				    else {
-//					eus.get(i).move((new TilePosition(this.posPlayerUnits.get(i).getX() + 3, this.posPlayerUnits.get(i).getY() - 10)).toPosition());
-//				    }
-//				    
-//				}
-//				else if (eus.get(i).getLastCommandFrame() >= game.getFrameCount() || eus.get(i).isAttackFrame()) {
-//				}
-//				else if (eus.get(i).getLastCommand().getUnitCommandType() == UnitCommandType.Attack_Unit) {
-//				}
-//				else {
-//				    if (enus.get(j).isVisible()) {
-//					eus.get(i).attack(enus.get(j));
-//				    }
-//				}
-//			    }
-//		    }
-//		    else  {
-//			for (int i = 0; i < eus.size(); i++) {
-//			    eus.get(i).move(new TilePosition(eus.get(i).getX(), eus.get(i).getY() - 10).toPosition());
-//			    game.sendText("AyyAdadfwDAWD");
-//			    if (!enus.get(j).isVisible()) {
-//				game.sendText("Where are yuuu :3");
-//				eus.get(i).move(new TilePosition(eus.get(i).getX(), eus.get(i).getY() + 10).toPosition());
-//			    }
-//			    else {
-//				game.sendText("Imma getcha :3");
-//				if (eus.get(i).getLastCommandFrame() >= game.getFrameCount() || eus.get(i).isAttackFrame()) {
-//				    game.sendText("Ayy");
-//				}
-//				else if (eus.get(i).getLastCommand().getUnitCommandType() == UnitCommandType.Attack_Unit) {
-//				    game.sendText("Ayy2");
-//				}
-//				else {
-//				    eus.get(i).attack(game.enemy().getUnits().get(j));
-//				}
-//			    }
-//			    
-//			}
-//		    }
-//	    }
-//	 }
+	 }
 	}
 	catch (Throwable e) {
 	    e.printStackTrace();
