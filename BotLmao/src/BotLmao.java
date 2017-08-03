@@ -3,8 +3,6 @@ import java.util.*;
 
 import bwapi.*;
 
-import BotAcc.*;
-
 public class BotLmao extends DefaultBWListener {
 
   private Mirror mirror = new Mirror();
@@ -71,15 +69,6 @@ public class BotLmao extends DefaultBWListener {
       BotAcc.BotFormationsLmao.useLineFormation(game, EnemyCount, SideFactor, eus, enus, posPlayerUnits);
     }
   }
-
-  
-  
-  
-  
-  
-  
-  
-
  
   public void useAmbushFormation() {
     for (int i = 0; i < eus.size(); i++) {
