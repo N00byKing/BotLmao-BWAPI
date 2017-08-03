@@ -61,10 +61,12 @@ public class BotLmao extends DefaultBWListener {
     } else if (game.mapFileName().equals("02_Zweikampf.scx")) {
       game.drawTextScreen(50, 90, ("Using Backtrackformation"));
       BotAcc.BotFormationsLmao.useBacktrackFormation(game, EnemyCount, SideFactor, eus, enus, posPlayerUnits);
-    } else if (game.mapFileName().equals("03_Zehnkampf.scx")) {
-      game.drawTextScreen(50, 90, ("Using Backtrack2formation"));
+    } 
+    else if (game.mapFileName().equals("99_Lan_MarineFirebat.scx")) {
+      game.drawTextScreen(50, 90, ("Using Backtrackformation"));
       BotAcc.BotFormationsLmao.useBacktrack2Formation(game, EnemyCount, SideFactor, eus, enus, posPlayerUnits);
-    } else {
+    }
+    else {
       game.drawTextScreen(50, 90, ("No specific Map formation. Defaulting to Lineformation"));
       BotAcc.BotFormationsLmao.useLineFormation(game, EnemyCount, SideFactor, eus, enus, posPlayerUnits);
     }
